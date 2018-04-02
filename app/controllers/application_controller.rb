@@ -67,7 +67,7 @@ class ApplicationController < Sinatra::Base
     end
     @tweets = Tweet.all
     @user = current_user
-    erb :"/tweets/tweets"
+    erb :"tweets/tweets"
   end
 
   get '/tweets/new' do
