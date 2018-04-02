@@ -66,7 +66,6 @@ class ApplicationController < Sinatra::Base
     end
     @tweets = Tweet.all
     @user = current_user
-    binding.pry
     erb :'tweets/tweets'
   end
 
