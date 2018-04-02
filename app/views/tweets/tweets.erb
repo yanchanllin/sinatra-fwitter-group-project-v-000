@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 <% if !!flash.has?(:wrong_user) %>
   <%= flash[:wrong_user] %>
 <% end %>
 <% if !!flash.has?(:wrong_user_edit) %>
+=======
+<% if flash.has?(:wrong_user) %>
+  <%= flash[:wrong_user] %>
+<% end %>
+<% if flash.has?(:wrong_user_edit) %>
+>>>>>>> 45ad4a83a0014a5d3a79715c797054c98be41c87
   <%= flash[:wrong_user_edit] %>
 <% end %>
 <h1>Welcome, <%= @user.username %></h1>
