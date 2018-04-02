@@ -1,6 +1,7 @@
 require './config/environment'
 require 'sinatra/base'
 require 'rack-flash'
+require 'pry'
 
 class ApplicationController < Sinatra::Base
   enable :sessions
@@ -16,7 +17,7 @@ class ApplicationController < Sinatra::Base
   end
 
   get '/signup' do
-    if Helpers.is_logged_in?(session)
+    if is_logged_in?
       redirect to '/tweets'
     end
 
@@ -38,7 +39,7 @@ class ApplicationController < Sinatra::Base
   end
 
   get '/login' do
-    if Helpers.is_logged_in?(session)
+    if is_logged_in?
       redirect to '/tweets'
     end
 
@@ -49,32 +50,35 @@ class ApplicationController < Sinatra::Base
     user = User.find_by(:username => params["username"])
 
     if user && user.authenticate(params[:password])
+      # binding.pry
       session[:user_id] = user.id
-      redirect to '/tweets'
+      redirect '/tweets'
     else
+      # binding.pry
       flash[:login_error] = "Incorrect login. Please try again."
       redirect to '/login'
     end
   end
 
   get '/tweets' do
-    if !Helpers.is_logged_in?(session)
+    if !is_logged_in?
       redirect to '/login'
     end
     @tweets = Tweet.all
-    @user = Helpers.current_user(session)
-    erb :"/tweets/tweets"
+    @user = current_user
+    # binding.pry
+    erb :'tweets/tweets'
   end
 
   get '/tweets/new' do
-    if !Helpers.is_logged_in?(session)
+    if !is_logged_in?
       redirect to '/login'
     end
     erb :"/tweets/create_tweet"
   end
 
   post '/tweets' do
-    user = Helpers.current_user(session)
+    user = current_user
     if params["content"].empty?
       flash[:empty_tweet] = "Please enter content for your tweet"
       redirect to '/tweets/new'
@@ -85,7 +89,7 @@ class ApplicationController < Sinatra::Base
   end
 
   get '/tweets/:id' do
-    if !Helpers.is_logged_in?(session)
+    if !is_logged_in?
       redirect to '/login'
     end
     @tweet = Tweet.find(params[:id])
@@ -93,11 +97,11 @@ class ApplicationController < Sinatra::Base
   end
 
   get '/tweets/:id/edit' do
-    if !Helpers.is_logged_in?(session)
+    if !is_logged_in?
       redirect to '/login'
     end
     @tweet = Tweet.find(params[:id])
-    if Helpers.current_user(session).id != @tweet.user_id
+    if current_user.id != @tweet.user_id
       flash[:wrong_user_edit] = "Sorry you can only edit your own tweets"
       redirect to '/tweets'
     end
@@ -117,11 +121,11 @@ class ApplicationController < Sinatra::Base
   end
 
   post '/tweets/:id/delete' do
-    if !Helpers.is_logged_in?(session)
+    if !is_logged_in?
       redirect to '/login'
     end
     @tweet = Tweet.find(params[:id])
-    if Helpers.current_user(session).id != @tweet.user_id
+    if current_user.id != @tweet.user_id
       flash[:wrong_user] = "Sorry you can only delete your own tweets"
       redirect to '/tweets'
     end
@@ -136,7 +140,7 @@ class ApplicationController < Sinatra::Base
   end
 
   get '/logout' do
-    if Helpers.is_logged_in?(session)
+    if is_logged_in?
       session.clear
       redirect to '/login'
     else
@@ -144,5 +148,13 @@ class ApplicationController < Sinatra::Base
     end
   end
 
+  helpers do
+     def is_logged_in?
+       !!current_user
+     end
+     def current_user
+       @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
+     end
+  end
 
 end
