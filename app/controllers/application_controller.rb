@@ -2,6 +2,7 @@ require './config/environment'
 require 'sinatra/base'
 require 'rack-flash'
 require 'pry'
+
 class ApplicationController < Sinatra::Base
   enable :sessions
   use Rack::Flash
@@ -16,7 +17,7 @@ class ApplicationController < Sinatra::Base
   end
 
   get '/signup' do
-    binding.pry 
+    binding.pry
     if Helpers.is_logged_in?(session)
       redirect to '/tweets'
     end
